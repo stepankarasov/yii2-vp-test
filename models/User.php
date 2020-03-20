@@ -2,103 +2,102 @@
 
 namespace app\models;
 
-class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
+use Yii;
+use yii\db\ActiveRecord;
+
+/**
+ * This is the model class for table "user".
+ *
+ * @property int           $id
+ * @property string        $last_name
+ * @property string        $first_name
+ * @property string        $phone
+ * @property float         $balance
+ * @property int           $status
+ * @property string        $created_at
+ * @property string        $updated_at
+ *
+ * @property string        $fullName
+ * @property Transaction[] $transactions
+ */
+class User extends ActiveRecord
 {
-    public $id;
-    public $username;
-    public $password;
-    public $authKey;
-    public $accessToken;
-
-    private static $users = [
-        '100' => [
-            'id' => '100',
-            'username' => 'admin',
-            'password' => 'admin',
-            'authKey' => 'test100key',
-            'accessToken' => '100-token',
-        ],
-        '101' => [
-            'id' => '101',
-            'username' => 'demo',
-            'password' => 'demo',
-            'authKey' => 'test101key',
-            'accessToken' => '101-token',
-        ],
-    ];
-
+    const STATUS_ACTIVE   = 1;
+    const STATUS_INACTIVE = 0;
 
     /**
      * {@inheritdoc}
      */
-    public static function findIdentity($id)
+    public static function tableName()
     {
-        return isset(self::$users[$id]) ? new static(self::$users[$id]) : null;
+        return '{{%user}}';
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function findIdentityByAccessToken($token, $type = null)
+    public function rules()
     {
-        foreach (self::$users as $user) {
-            if ($user['accessToken'] === $token) {
-                return new static($user);
-            }
-        }
+        return [
+            [['last_name'], 'match', 'pattern' => '/^[a-zA-Zа-яёА-ЯЁ\s\-]+$/u'],
+            [['last_name'], 'required', 'message' => Yii::t('app', 'Укажите фамилию.')],
+            [['last_name'], 'string', 'min' => 2, 'max' => 50],
 
-        return null;
-    }
+            [['first_name'], 'match', 'pattern' => '/^[a-zA-Zа-яёА-ЯЁ\s\-]+$/u'],
+            [['first_name'], 'required', 'message' => Yii::t('app', 'Укажите имя.')],
+            [['first_name'], 'string', 'min' => 2, 'max' => 50],
 
-    /**
-     * Finds user by username
-     *
-     * @param string $username
-     * @return static|null
-     */
-    public static function findByUsername($username)
-    {
-        foreach (self::$users as $user) {
-            if (strcasecmp($user['username'], $username) === 0) {
-                return new static($user);
-            }
-        }
+            [['phone'], 'required'],
+            [['phone'], 'string', 'min' => 10, 'max' => 20],
+            [
+                ['phone'],
+                'unique',
+                'targetClass' => self::className(),
+                'message'     => Yii::t('app', 'Номер телефона уже используется.')
+            ],
+            [
+                ['phone'],
+                'match',
+                'pattern' => '/^(\+)?(\(\d{2,3}\) ?\d|\d)(([ \-]?\d)|( ?\(\d{2,3}\) ?)){5,12}\d$/',
+                'message' => Yii::t('app', 'Укажите правильный номер телефона')
+            ],
 
-        return null;
-    }
+            [['status'], 'in', 'range' => [self::STATUS_INACTIVE, self::STATUS_ACTIVE]],
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getId()
-    {
-        return $this->id;
+            [['created_at', 'updated_at'], 'safe'],
+        ];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getAuthKey()
+    public function attributeLabels()
     {
-        return $this->authKey;
+        return [
+            'id'             => Yii::t('app', 'ID'),
+            'last_name'      => Yii::t('app', 'Last Name'),
+            'first_name'     => Yii::t('app', 'First Name'),
+            'phone'          => Yii::t('app', 'Phone'),
+            'balance'        => Yii::t('app', 'Balance'),
+            'status'         => Yii::t('app', 'Status'),
+            'created_at'     => Yii::t('app', 'Created At'),
+            'updated_at'     => Yii::t('app', 'Updated At'),
+        ];
     }
 
     /**
-     * {@inheritdoc}
+     * @return string
      */
-    public function validateAuthKey($authKey)
+    public function getFullName()
     {
-        return $this->authKey === $authKey;
+        return $this->first_name . ' ' . $this->last_name;
     }
 
     /**
-     * Validates password
-     *
-     * @param string $password password to validate
-     * @return bool if password provided is valid for current user
+     * @return \yii\db\ActiveQuery
      */
-    public function validatePassword($password)
+    public function getTransactions()
     {
-        return $this->password === $password;
+        return $this->hasMany(Transaction::className(), ['id' => 'user_id'])->inverseOf('user');
     }
 }
