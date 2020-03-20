@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\behaviors\transaction\UpdateBalanceBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
@@ -34,7 +35,10 @@ class Transaction extends ActiveRecord
     public function behaviors()
     {
         return [
-            [
+            'updateBalances'          => [
+                'class' => UpdateBalanceBehavior::class
+            ],
+            'timestampBehavior'       => [
                 'class'      => TimestampBehavior::className(),
                 'attributes' => [
                     ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
@@ -94,5 +98,16 @@ class Transaction extends ActiveRecord
     public function getUserPhone()
     {
         return ArrayHelper::getValue($this->user, 'phone');
+    }
+
+    public static function getTotal($provider, $fieldName)
+    {
+        $total = 0;
+
+        foreach ($provider as $item) {
+            $total += $item[$fieldName];
+        }
+
+        return $total;
     }
 }

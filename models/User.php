@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use ErrorException;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 
@@ -113,5 +114,18 @@ class User extends ActiveRecord
     public function getTransactions()
     {
         return $this->hasMany(Transaction::className(), ['id' => 'user_id'])->inverseOf('user');
+    }
+
+    /**
+     * @param float $balance
+     * @throws ErrorException
+     */
+    public function addBalance($balance)
+    {
+        $this->balance += (float)$balance;
+        $this->detachBehaviors();
+        if (!$this->save(true, ['balance'])) {
+            throw new ErrorException('Ошибка обновления баланса: ' . print_r($this->getErrors(), true));
+        }
     }
 }

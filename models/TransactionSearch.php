@@ -63,18 +63,20 @@ class TransactionSearch extends Transaction
             'id'         => $this->id,
             'user_id'    => $this->user_id,
             'amount'     => $this->amount,
-            'status'     => $this->status,
+            'transaction.status'     => $this->status,
             'transaction.created_at' => $this->created_at,
             'transaction.updated_at' => $this->updated_at,
         ]);
 
-        $query->joinWith([
-            'user' => function ($q)
-            {
-                $q->where('user.phone LIKE "%' .
-                    $this->userPhone . '%"');
-            }
-        ]);
+        if ($this->userPhone) {
+            $query->joinWith([
+                'user' => function ($q)
+                {
+                    $q->where('user.phone LIKE "%' .
+                        $this->userPhone . '%"');
+                }
+            ]);
+        }
 
         return $dataProvider;
     }
