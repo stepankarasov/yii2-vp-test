@@ -2,7 +2,7 @@
 
 namespace app\models;
 
-use Yii;
+use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 
 /**
@@ -33,6 +33,19 @@ class User extends ActiveRecord
         return '{{%user}}';
     }
 
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::className(),
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
+                ],
+            ],
+        ];
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -40,11 +53,11 @@ class User extends ActiveRecord
     {
         return [
             [['last_name'], 'match', 'pattern' => '/^[a-zA-Zа-яёА-ЯЁ\s\-]+$/u'],
-            [['last_name'], 'required', 'message' => Yii::t('app', 'Укажите фамилию.')],
+            [['last_name'], 'required', 'message' => 'Укажите фамилию'],
             [['last_name'], 'string', 'min' => 2, 'max' => 50],
 
             [['first_name'], 'match', 'pattern' => '/^[a-zA-Zа-яёА-ЯЁ\s\-]+$/u'],
-            [['first_name'], 'required', 'message' => Yii::t('app', 'Укажите имя.')],
+            [['first_name'], 'required', 'message' => 'Укажите имя'],
             [['first_name'], 'string', 'min' => 2, 'max' => 50],
 
             [['phone'], 'required'],
@@ -53,13 +66,13 @@ class User extends ActiveRecord
                 ['phone'],
                 'unique',
                 'targetClass' => self::className(),
-                'message'     => Yii::t('app', 'Номер телефона уже используется.')
+                'message'     => 'Номер телефона уже используется'
             ],
             [
                 ['phone'],
                 'match',
                 'pattern' => '/^(\+)?(\(\d{2,3}\) ?\d|\d)(([ \-]?\d)|( ?\(\d{2,3}\) ?)){5,12}\d$/',
-                'message' => Yii::t('app', 'Укажите правильный номер телефона')
+                'message' => 'Укажите правильный номер телефона'
             ],
 
             [['status'], 'in', 'range' => [self::STATUS_INACTIVE, self::STATUS_ACTIVE]],
@@ -74,14 +87,15 @@ class User extends ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id'             => Yii::t('app', 'ID'),
-            'last_name'      => Yii::t('app', 'Last Name'),
-            'first_name'     => Yii::t('app', 'First Name'),
-            'phone'          => Yii::t('app', 'Phone'),
-            'balance'        => Yii::t('app', 'Balance'),
-            'status'         => Yii::t('app', 'Status'),
-            'created_at'     => Yii::t('app', 'Created At'),
-            'updated_at'     => Yii::t('app', 'Updated At'),
+            'id'         => 'ID',
+            'last_name'  => 'Фамилия',
+            'first_name' => 'Имя',
+            'full_name'  => 'ФИО',
+            'phone'      => 'Телефон',
+            'balance'    => 'Баланс',
+            'status'     => 'Статус',
+            'created_at' => 'Создано',
+            'updated_at' => 'Обновлено',
         ];
     }
 

@@ -16,7 +16,6 @@ class m200320_042314_user_table extends Migration
 
         $this->createTable('{{%user}}', [
             'id' => $this->primaryKey()->unsigned(),
-            'username' => $this->string()->notNull()->unique(),
 
             'first_name' => $this->string()->notNull(),
             'last_name' => $this->string()->notNull(),

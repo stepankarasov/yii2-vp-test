@@ -10,15 +10,17 @@ use yii\data\ActiveDataProvider;
  */
 class TransactionSearch extends Transaction
 {
+    private $userPhone;
+
     /**
      * {@inheritdoc}
      */
     public function rules()
     {
         return [
-            [['id', 'status'], 'integer'],
+            [['id', 'user_id', 'status'], 'integer'],
             [['amount'], 'double'],
-            [['last_name', 'first_name', 'created_at', 'updated_at'], 'safe'],
+            [['userPhone', 'created_at', 'updated_at'], 'safe'],
         ];
     }
 
@@ -58,13 +60,27 @@ class TransactionSearch extends Transaction
 
         // grid filtering conditions
         $query->andFilterWhere([
-            'id' => $this->id,
-            'amount' => $this->amount,
-            'status' => $this->status,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'id'         => $this->id,
+            'user_id'    => $this->user_id,
+            'amount'     => $this->amount,
+            'status'     => $this->status,
+            'transaction.created_at' => $this->created_at,
+            'transaction.updated_at' => $this->updated_at,
+        ]);
+
+        $query->joinWith([
+            'user' => function ($q)
+            {
+                $q->where('user.phone LIKE "%' .
+                    $this->userPhone . '%"');
+            }
         ]);
 
         return $dataProvider;
+    }
+
+    public function setUserPhone($phone)
+    {
+        $this->userPhone = $phone;
     }
 }

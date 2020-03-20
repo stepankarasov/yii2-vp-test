@@ -2,8 +2,9 @@
 
 namespace app\models;
 
-use Yii;
+use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "transaction".
@@ -15,7 +16,7 @@ use yii\db\ActiveRecord;
  * @property string $created_at
  * @property string $updated_at
  *
- * @property User $user
+ * @property User   $user
  */
 class Transaction extends ActiveRecord
 {
@@ -30,13 +31,26 @@ class Transaction extends ActiveRecord
         return '{{%transaction}}';
     }
 
+    public function behaviors()
+    {
+        return [
+            [
+                'class'      => TimestampBehavior::className(),
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
+                ],
+            ],
+        ];
+    }
+
     /**
      * {@inheritdoc}
      */
     public function rules()
     {
         return [
-            [['amount'], 'required', 'message' => Yii::t('app', 'Укажите сумму.')],
+            [['amount'], 'required', 'message' => 'Укажите сумму'],
             [['amount'], 'double'],
 
             [['status'], 'in', 'range' => [self::STATUS_CANCEL, self::STATUS_SUCCESS]],
@@ -59,12 +73,13 @@ class Transaction extends ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id'         => Yii::t('app', 'ID'),
-            'user_id'    => Yii::t('app', 'User ID'),
-            'amount'     => Yii::t('app', 'Amount'),
-            'status'     => Yii::t('app', 'Status'),
-            'created_at' => Yii::t('app', 'Created At'),
-            'updated_at' => Yii::t('app', 'Updated At'),
+            'id'         => 'ID',
+            'user_id'    => 'ID пользователя',
+            'userPhone'  => 'Телефон пользователя',
+            'amount'     => 'Сумма',
+            'status'     => 'Статус',
+            'created_at' => 'Создано',
+            'updated_at' => 'Обновлено',
         ];
     }
 
@@ -74,5 +89,10 @@ class Transaction extends ActiveRecord
     public function getUser()
     {
         return $this->hasOne(User::className(), ['id' => 'user_id'])->inverseOf('transactions');
+    }
+
+    public function getUserPhone()
+    {
+        return ArrayHelper::getValue($this->user, 'phone');
     }
 }

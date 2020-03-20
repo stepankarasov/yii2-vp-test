@@ -1,5 +1,10 @@
 <?php
 
+error_reporting(-1);
+ini_set('display_errors', true);
+ini_set('display_startup_errors', true);
+date_default_timezone_set('Asia/Vladivostok');
+
 // comment out the following two lines when deployed to production
 defined('YII_DEBUG') or define('YII_DEBUG', true);
 defined('YII_ENV') or define('YII_ENV', 'dev');

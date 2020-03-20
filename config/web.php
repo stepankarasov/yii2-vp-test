@@ -4,54 +4,66 @@ $params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/db.php';
 
 $config = [
-    'id' => 'basic',
-    'basePath' => dirname(__DIR__),
-    'bootstrap' => ['log'],
-    'aliases' => [
+    'id'         => 'basic',
+    'basePath'   => dirname(__DIR__),
+    'bootstrap'  => ['log'],
+    'aliases'    => [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
     ],
     'components' => [
-        'request' => [
+        'request'      => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'R3T1SzsVGvUnx1BsB0hsd1Eb3sUpO9v1',
         ],
-        'cache' => [
+        'cache'        => [
             'class' => 'yii\caching\FileCache',
         ],
-        'user' => [
-            'identityClass' => 'app\models\User',
+        'user'         => [
+            'identityClass'   => 'app\models\User',
             'enableAutoLogin' => true,
         ],
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
-        'mailer' => [
-            'class' => 'yii\swiftmailer\Mailer',
+        'mailer'       => [
+            'class'            => 'yii\swiftmailer\Mailer',
             // send all mails to a file by default. You have to set
             // 'useFileTransport' to false and configure a transport
             // for the mailer to send real emails.
             'useFileTransport' => true,
         ],
-        'log' => [
+        'log'          => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
-            'targets' => [
+            'targets'    => [
                 [
-                    'class' => 'yii\log\FileTarget',
+                    'class'  => 'yii\log\FileTarget',
                     'levels' => ['error', 'warning'],
                 ],
             ],
         ],
-        'db' => $db,
-        'urlManager' => [
+        'db'           => $db,
+        'urlManager'   => [
             'enablePrettyUrl' => true,
-            'showScriptName' => false,
-            'rules' => [
-                '<action:\w+>'             => 'site/<action>',
+            'showScriptName'  => false,
+            'rules'           => [
+                '' => 'site/index',
+
+                'users'                      => 'user/index',
+                'users/create'               => 'user/create',
+                'users/<id:[\w\.-]+>'        => 'user/view',
+                'users/<id:[\w\.-]+>/update' => 'user/update',
+                'users/<id:[\w\.-]+>/delete' => 'user/delete',
+
+                'transactions'                      => 'transaction/index',
+                'transactions/create'               => 'transaction/create',
+                'transactions/<id:[\w\.-]+>'        => 'transaction/view',
+                'transactions/<id:[\w\.-]+>/update' => 'transaction/update',
+                'transactions/<id:[\w\.-]+>/delete' => 'transaction/delete',
             ],
         ],
     ],
-    'params' => $params,
+    'params'     => $params,
 ];
 
 if (YII_ENV_DEV) {
