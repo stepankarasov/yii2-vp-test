@@ -113,7 +113,7 @@ class User extends ActiveRecord
      */
     public function getTransactions()
     {
-        return $this->hasMany(Transaction::className(), ['id' => 'user_id'])->inverseOf('user');
+        return $this->hasMany(Transaction::className(), ['user_id' => 'id'])->inverseOf('user');
     }
 
     /**

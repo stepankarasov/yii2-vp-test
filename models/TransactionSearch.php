@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use DateTime;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 
@@ -39,6 +40,7 @@ class TransactionSearch extends Transaction
      * @param array $params
      *
      * @return ActiveDataProvider
+     * @throws \Exception
      */
     public function search($params)
     {
@@ -58,14 +60,20 @@ class TransactionSearch extends Transaction
             return $dataProvider;
         }
 
+        $createdAt = explode(' - ', $this->created_at);
+        if (count($createdAt) == 2) {
+            $dateStart = (new DateTime($createdAt[0]))->setTime(00, 00, 00)->getTimestamp();
+            $dateEnd = (new DateTime($createdAt[1]))->setTime(23, 59, 59)->getTimestamp();
+
+            $query->andWhere(['between', 'transaction.created_at', $dateStart, $dateEnd]);
+        }
+
         // grid filtering conditions
         $query->andFilterWhere([
-            'id'         => $this->id,
-            'user_id'    => $this->user_id,
-            'amount'     => $this->amount,
+            'transaction.id'         => $this->id,
+            'transaction.user_id'    => $this->user_id,
+            'transaction.amount'     => $this->amount,
             'transaction.status'     => $this->status,
-            'transaction.created_at' => $this->created_at,
-            'transaction.updated_at' => $this->updated_at,
         ]);
 
         if ($this->userPhone) {

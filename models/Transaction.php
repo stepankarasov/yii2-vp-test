@@ -17,6 +17,7 @@ use yii\helpers\ArrayHelper;
  * @property string $created_at
  * @property string $updated_at
  *
+ * @property string  $userPhone
  * @property User   $user
  */
 class Transaction extends ActiveRecord
